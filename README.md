@@ -1,1 +1,1 @@
-# observatory-snapshot
+# observer-snapshot
