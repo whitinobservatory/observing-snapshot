@@ -79,7 +79,7 @@ BGCOLOR="gainsboro"
 
 FONTREDUCE="16"
 TNSCALE="12.5%"
-VIDSCALE="50%"
+VIDSCALE="75%"
 
 #WEBNOW="no"
 WEBNOW="yes"
@@ -97,10 +97,12 @@ WEBDIR="/observing-snapshot"
 # required dependencies check
 
 if [ ! -x "$(command -v rename)" ] || [ ! -x "$(command -v astfits)" ] || [ ! -x "$(command -v aststatistics)" ]|| [ ! -x "$(command -v ds9)" ]|| [ ! -x "$(command -v xvfb-run)" ]|| [ ! -x "$(command -v convert)" ]|| [ ! -x "$(command -v mogrify)" ] || [ ! -x "$(command -v ffmpeg)" ] ; then
+
 	echo "rename, gnuastro astfits/aststatistics, saods9 ds9, xvfb xvfb-run, imagemagick convert/mogrify, or ffmpeg unavailable"
 	echo
 	echo "exiting"
 	exit
+
 fi
 
 # setup and configuration
@@ -120,11 +122,13 @@ fi
 if [ -e save/flag.txt ] ; then
 
 	if [ $VERBOSE == "yes" ] ; then
+
 		echo
 		echo "current ongoing processing flag exists"
 		echo
 		echo "exiting"
 		echo
+
 	fi
 
 	exit
@@ -134,15 +138,19 @@ fi
 touch save/flag.txt
 
 if [ $VERBOSE == "yes" ] ; then
+
 	echo
 	echo "starting"
 	echo
 	echo "raw data directory: "$DATARAW
 	echo "working data directory: "$DATAHOME/$DATAWORKING/data
+
 fi
 
 if [ ! -e save/datanow.txt ] ; then
+
 	echo 0000-00-00 > save/datanow.txt
+
 fi
 
 mv -f save/datanow.txt save/datalast.txt
@@ -154,8 +162,10 @@ echo $DATAUPDATE > save/dataupdate.txt
 if [ `cat save/datanow.txt` != `cat save/datalast.txt` ] ; then
 
 	if [ $VERBOSE == "yes" ] ; then
+
 		echo
 		echo "processing new night of data"
+
 	fi
 
 	rm -rf data images videos text html
@@ -167,8 +177,10 @@ fi
 if [ `cat save/datanow.txt` == `cat save/datalast.txt` ] ; then
 
 	if [ $VERBOSE == "yes" ] ; then
+
 		echo
 		echo "processing same night of data"
+
 	fi
 
 fi
@@ -184,11 +196,13 @@ if [ ! -e $DATARAW ] ; then
 	rm -rf index.html
 
 	if [ $VERBOSE == "yes" ] ; then
+
 		echo
 		echo "raw data directory does not exist"
 		echo
 		echo "exiting"
 		echo
+
 	fi
 
 	rm -f save/flag.txt
@@ -199,11 +213,13 @@ fi
 if [ `ls $DATARAW/ | wc -l` == 0 ] ; then
 
 	if [ $VERBOSE == "yes" ] ; then
+
 		echo
 		echo "raw data directory files do not exist"
 		echo
 		echo "exiting"
 		echo
+
 	fi
 
 	rm -f save/flag.txt
@@ -214,8 +230,11 @@ fi
 # synchronize data and perform data bookkeeping
 
 if [ $VERBOSE == "yes" ] ; then
+
 	echo "synchronizing recent data"
+
 fi
+
 rsync -qav --delete --include "*.$FITSEXT" --exclude "*" $DATARAW/ data/
 
 rename -f 's/ /_/g' data/*$FITSEXT
@@ -225,10 +244,12 @@ cat save/fitssync.txt | sed 's#data/##' | sed "s#\.${FITSEXT}##" > save/fitsnow.
 diff save/fitslast.txt save/fitsnow.txt | grep '^>' | cut -c 3- > save/fitsdiff.txt
 
 if [ $VERBOSE == "yes" ] ; then
+
 	echo
 	echo "number of total data files: "`cat save/fitsnow.txt | wc -l`
 	echo "number of previous data files: "`cat save/fitslast.txt | wc -l`
 	echo "number of recent data files: "`cat save/fitsdiff.txt | wc -l`
+
 fi
 
 cat save/fitssync.txt | sed 's#data#images#' | sed "s#${FITSEXT}#png#" > text/images.txt
@@ -241,8 +262,10 @@ cat save/fitssync.txt | sed 's#data#images#' | sed "s#\.${FITSEXT}#-tn\.png#" > 
 if [ `cat save/fitsdiff.txt | wc -l` == 0 ] ; then
 
 	if [ $VERBOSE == "yes" ] ; then
+
 		echo
 		echo "not extracting metadata for recent data"
+
 	fi
 
 fi
@@ -250,8 +273,10 @@ fi
 if [ `cat save/fitsdiff.txt | wc -l` != 0 ] ; then
 
 	if [ $VERBOSE == "yes" ] ; then
+
 		echo
 		echo "extracting metadata for recent data"
+
 	fi
 
 	cat save/fitssync.txt | grep -iv -f save/fitslast.txt                                                                        | sed 's#data/##' | sed "s#\.${FITSEXT}##" | sed 's/ /_/g' | awk '{printf "%-26s\n",$0}'                                                                                                  >> text/image.txt
@@ -286,7 +311,9 @@ fi
 if [ `cat save/fitsdiff.txt | wc -l` == 0 ] ; then
 
 	if [ $VERBOSE == "yes" ] ; then
+
 		echo "not calculating statistics for recent data"
+
 	fi
 
 fi
@@ -294,7 +321,9 @@ fi
 if [ `cat save/fitsdiff.txt | wc -l` != 0 ] ; then
 
 	if [ $VERBOSE == "yes" ] ; then
+
 		echo "calculating statistics for recent data"
+
 	fi
 
 	cat save/fitssync.txt | grep -iv -f save/fitslast.txt | awk '{print "aststatistics -q -h0 -m",$1}'                    | bash                                                            | awk '{if ($0=="n/a") print; else printf "%-5i\n",$0}'  | awk '{printf "%-7s\n",$0}' >> text/mean.txt
@@ -306,7 +335,9 @@ fi
 if [ `cat save/fitsdiff.txt | wc -l` == 0 ] ; then
 
 	if [ $VERBOSE == "yes" ] ; then
+
 		echo "not creating log for recent data"
+
 	fi
 
 fi
@@ -314,7 +345,9 @@ fi
 if [ `cat save/fitsdiff.txt | wc -l` != 0 ] ; then
 
 	if [ $VERBOSE == "yes" ] ; then
+
 		echo "creating log for recent data"
+
 	fi
 
 	echo "IMAGE                     UTC-DATE    UTC-TIME  INST  SET    ACTUAL WIDTH HGHT  BN TYPE        OBJECT           FILTER     EXPT   AIRM  PA     HA     RA        DEC        ALT   AZ     FWHM SCALE SEE  MEAN   " > text/obslog.txt
@@ -328,8 +361,10 @@ fi
 if [ `cat save/fitsdiff.txt | wc -l` == 0 ] ; then
 
 	if [ $VERBOSE == "yes" ] ; then
+
 		echo
 		echo "not creating full-size png images for recent data"
+
 	fi
 
 fi
@@ -337,8 +372,10 @@ fi
 if [ `cat save/fitsdiff.txt | wc -l` != 0 ] ; then
 
 	if [ $VERBOSE == "yes" ] ; then
+
 		echo
 		echo "creating full-size png images for recent data"
+
 	fi
 
 	paste text/width.txt text/height.txt save/fitssync.txt text/images.txt | awk '{print "xvfb-run -a ds9 -iconify -squared -zscale -invert -width",$1,"-height",$2,$3,"-export",$4,"-exit"}' | grep -iv -f save/fitslast.txt | bash
@@ -350,7 +387,9 @@ fi
 if [ `cat save/fitsdiff.txt | wc -l` == 0 ] ; then
 
 	if [ $VERBOSE == "yes" ] ; then
+
 		echo "not flipping orientation of full-size png images for recent data"
+
 	fi
 
 fi
@@ -360,7 +399,9 @@ if [ `cat save/fitsdiff.txt | wc -l` != 0 ] ; then
 	if [ $FLIP == "no" ] ; then
 
 		if [ $VERBOSE == "yes" ] ; then
+
 			echo "not flipping orientation of full-size png images for recent data"
+
 		fi
 
 	fi
@@ -368,7 +409,9 @@ if [ `cat save/fitsdiff.txt | wc -l` != 0 ] ; then
 	if [ $FLIP == "yes" ] ; then
 
 		if [ $VERBOSE == "yes" ] ; then
+
 			echo "flipping orientation of full-size png images for recent data"
+
 		fi
 
 		paste text/images.txt | awk '{print "mogrify -quality 100% -flip",$1}' | grep -iv -f save/fitslast.txt | bash
@@ -382,7 +425,9 @@ fi
 if [ `cat save/fitsdiff.txt | wc -l` == 0 ] ; then
 
 	if [ $VERBOSE == "yes" ] ; then
+
 		echo "not flopping orientation of full-size png images for recent data"
+
 	fi
 
 fi
@@ -392,7 +437,9 @@ if [ `cat save/fitsdiff.txt | wc -l` != 0 ] ; then
 	if [ $FLOP == "no" ] ; then
 
 		if [ $VERBOSE == "yes" ] ; then
+
 			echo "not flopping orientation of full-size png images for recent data"
+
 		fi
 
 	fi
@@ -400,7 +447,9 @@ if [ `cat save/fitsdiff.txt | wc -l` != 0 ] ; then
 	if [ $FLOP == "yes" ] ; then
 
 		if [ $VERBOSE == "yes" ] ; then
+
 			echo "flopping orientation of full-size png images for recent data"
+
 		fi
 
 		paste text/images.txt | awk '{print "mogrify -quality 100% -flop",$1}' | grep -iv -f save/fitslast.txt | bash
@@ -414,7 +463,9 @@ fi
 if [ `cat save/fitsdiff.txt | wc -l` == 0 ] ; then
 
 	if [ $VERBOSE == "yes" ] ; then
+
 		echo "not rotating orientation of full-size png images for recent data"
+
 	fi
 
 fi
@@ -424,7 +475,9 @@ if [ `cat save/fitsdiff.txt | wc -l` != 0 ] ; then
 	if [ $ROTATE == "0" ] ; then
 
 		if [ $VERBOSE == "yes" ] ; then
+
 			echo "not rotating orientation of full-size png images for recent data"
+
 		fi
 
 	fi
@@ -432,7 +485,9 @@ if [ `cat save/fitsdiff.txt | wc -l` != 0 ] ; then
 	if [ $ROTATE == "90" ] || [ $ROTATE == "180" ] || [ $ROTATE == "270" ] || [ $ROTATE == "-90" ] || [ $ROTATE == "-180" ] || [ $ROTATE == "-270" ] ; then
 
 		if [ $VERBOSE == "yes" ] ; then
+
 			echo "rotating orientation of full-size png images for recent data"
+
 		fi
 
 		if [ $ROTATE == "90" ] || [ $ROTATE == "-270" ] ; then
@@ -462,7 +517,9 @@ fi
 if [ `cat save/fitsdiff.txt | wc -l` == 0 ] ; then
 
 	if [ $VERBOSE == "yes" ] ; then
+
 		echo "not annotating full-size png images for recent data"
+
 	fi
 
 fi
@@ -472,21 +529,29 @@ if [ `cat save/fitsdiff.txt | wc -l` != 0 ] ; then
 	if [ ! -e save/$FONT ] ; then
 
 		if [ -e $FONTDIR/$FONT ] ; then
+
 			cp $FONTDIR/$FONT save/$FONT
+
 		fi
 
 		if [ ! -e save/$FONT ] ; then
+
 			FONTSTRING=""
+
 		fi
 
 	fi
 
 	if [ -e save/$FONT ] ; then
+
 		FONTSTRING="-font save/$FONT"
+
 	fi
 
 	if [ $VERBOSE == "yes" ] ; then
+
 		echo "annotating full-size png images for recent data"
+
 	fi
 
 	FONTSIZE=`cat text/height.txt text/width.txt | awk -v fontreduce="$FONTREDUCE" '{ sum += $1 } END { print sum / NR / fontreduce }'`
@@ -500,7 +565,9 @@ fi
 if [ `cat save/fitsdiff.txt | wc -l` == 0 ] ; then
 
 	if [ $VERBOSE == "yes" ] ; then
+
 		echo "not creating thumbnail png images for recent data"
+
 	fi
 
 fi
@@ -508,7 +575,9 @@ fi
 if [ `cat save/fitsdiff.txt | wc -l` != 0 ] ; then
 
 	if [ $VERBOSE == "yes" ] ; then
-	echo "creating thumbnail png images for recent data"
+
+		echo "creating thumbnail png images for recent data"
+
 	fi
 
 	paste text/images.txt text/tn.txt | awk -v tnscale="$TNSCALE" '{print "convert -quality 100% -resize "tnscale"x"tnscale,$1,$2}' | grep -iv -f save/fitslast.txt | bash
@@ -520,8 +589,10 @@ fi
 if [ `cat text/list.txt | wc -l` == 0 ] || [ `cat save/fitsdiff.txt | wc -l` == 0 ] ; then
 
 	if [ $VERBOSE == "yes" ] ; then
+
 		echo
 		echo "not creating video png images for recent data"
+
 	fi
 
 fi
@@ -529,8 +600,10 @@ fi
 if [ `cat text/list.txt | wc -l` != 0 ] && [ `cat save/fitsdiff.txt | wc -l` != 0 ] ; then
 
 	if [ $VERBOSE == "yes" ] ; then
+
 		echo
 		echo "creating video png images for recent data"
+
 	fi
 
 	paste text/images.txt text/videos.txt | awk -v vidscale="$VIDSCALE" '{print "convert -quality 100% -resize "vidscale"x"vidscale,$1,$2}' | grep -iv $BIAS | grep -iv $DARK | grep -iv $FLAT | grep -iv -f save/fitslast.txt | bash
@@ -541,7 +614,9 @@ fi
 if [ `cat text/list.txt | wc -l` == 0 ] || [ `cat save/fitsdiff.txt | wc -l` == 0 ] ; then
 
 	if [ $VERBOSE == "yes" ] ; then
+
 		echo "not creating mp4 video for all data"
+
 	fi
 
 fi
@@ -549,7 +624,9 @@ fi
 if [ `cat text/list.txt | wc -l` != 0 ] && [ `cat save/fitsdiff.txt | wc -l` != 0 ] ; then
 
 	if [ $VERBOSE == "yes" ] ; then
+
 		echo "creating mp4 video for all data"
+
 	fi
 
 	ffmpeg -v quiet -y -r:v 12 -f concat -safe 0 -i text/list.txt -codec:v libx264 -preset veryslow -pix_fmt yuv420p -crf 0 -an -vf "pad=ceil(iw/2)*2:ceil(ih/2)*2" videos/$DATANIGHT.mp4
@@ -560,8 +637,10 @@ fi
 if [ `cat save/fitsdiff.txt | wc -l` == 0 ] ; then
 
 	if [ $VERBOSE == "yes" ] ; then
+
 		echo
 		echo "not creating html page for all data"
+
 	fi
 
 fi
@@ -569,8 +648,10 @@ fi
 if [ `cat save/fitsdiff.txt | wc -l` != 0 ] ; then
 
 	if [ $VERBOSE == "yes" ] ; then
+
 		echo
 		echo "creating html page for all data"
+
 	fi
 
 	touch html/index.html
@@ -594,9 +675,11 @@ if [ `cat save/fitsdiff.txt | wc -l` != 0 ] ; then
 	echo "<hr><a name='video'>" >> html/index.html
 
 	if [ -e videos/$DATANIGHT.mp4 ] ; then
+
 		echo -n "<video src='videos/" >> html/index.html
 		cat save/datanow.txt | tr -d '\n' >> html/index.html
 		echo ".mp4' type='video/mp4' controls></video>" >> html/index.html
+
 	fi
 
 	echo -n "<hr>" >> html/index.html
@@ -635,8 +718,10 @@ if [ $WEBNOW == "yes" ] ; then
 	if [ `cat save/fitsdiff.txt | wc -l` == 0 ] ; then
 
 		if [ $VERBOSE == "yes" ] ; then
+
 			echo
 			echo "not synchronizing tonight's current html page for all data"
+
 		fi
 
 	fi
@@ -644,24 +729,30 @@ if [ $WEBNOW == "yes" ] ; then
 	if [ `cat save/fitsdiff.txt | wc -l` != 0 ] ; then
 
 		if [ $VERBOSE == "yes" ] ; then
+
 			echo
 			echo "synchronizing tonight's current html page for all data"
 			echo "write location: "$REMOTEUSER"@"$REMOTEHOST":"$REMOTEDIR"/"
 			echo "read location: "$WEBPROTOCOL"://"$WEBHOST""$WEBDIR"/"
+
 		fi
 
 		ssh -q $REMOTEUSER@$REMOTEHOST mkdir -p $REMOTEDIR
 		ssh -q $REMOTEUSER@$REMOTEHOST mkdir -p $REMOTEDIR/images
 
 		if [ -e videos/$DATANIGHT.mp4 ] ; then
+
 			ssh -q $REMOTEUSER@$REMOTEHOST mkdir -p $REMOTEDIR/videos
+
 		fi
 
 		rsync -qav --delete html/index.html $REMOTEUSER@$REMOTEHOST:$REMOTEDIR/index.html
 		rsync -qav --delete --include "*.png" --exclude "*" images/ $REMOTEUSER@$REMOTEHOST:$REMOTEDIR/images/
 
 		if [ -e videos/$DATANIGHT.mp4 ] ; then
+
 			rsync -qav --delete --include "*.mp4" --exclude "*" videos/ $REMOTEUSER@$REMOTEHOST:$REMOTEDIR/videos/
+
 		fi
 
 	fi
@@ -686,8 +777,10 @@ if [ $WEBARCHIVE == "yes" ] ; then
 	if [ `cat save/fitsdiff.txt | wc -l` == 0 ] ; then
 
 		if [ $VERBOSE == "yes" ] ; then
+
 			echo
 			echo "not synchronizing tonight's archive html page for all data"
+
 		fi
 
 	fi
@@ -695,24 +788,30 @@ if [ $WEBARCHIVE == "yes" ] ; then
 	if [ `cat save/fitsdiff.txt | wc -l` != 0 ] ; then
 
 		if [ $VERBOSE == "yes" ] ; then
+
 			echo
 			echo "synchronizing tonight's archive html page for all data"
 			echo "write location: "$REMOTEUSER"@"$REMOTEHOST":"$REMOTEDIR"/archive/"
 			echo "read location: "$WEBPROTOCOL"://"$WEBHOST""$WEBDIR"/archive/"
+
 		fi
 
 		ssh -q $REMOTEUSER@$REMOTEHOST mkdir -p $REMOTEDIR/archive/$DATANIGHT
 		ssh -q $REMOTEUSER@$REMOTEHOST mkdir -p $REMOTEDIR/archive/$DATANIGHT/images
 
 		if [ -e videos/$DATANIGHT.mp4 ] ; then
+
 			ssh -q $REMOTEUSER@$REMOTEHOST mkdir -p $REMOTEDIR/archive/$DATANIGHT/videos
+
 		fi
 
 		rsync -qav --delete html/index.html $REMOTEUSER@$REMOTEHOST:$REMOTEDIR/archive/$DATANIGHT/index.html
 		rsync -qav --delete --include "*.png" --exclude "*" images/ $REMOTEUSER@$REMOTEHOST:$REMOTEDIR/archive/$DATANIGHT/images/
 
 		if [ -e videos/$DATANIGHT.mp4 ] ; then
+
 			rsync -qav --delete --include "*.mp4" --exclude "*" videos/ $REMOTEUSER@$REMOTEHOST:$REMOTEDIR/archive/$DATANIGHT/videos/
+
 		fi
 
 	fi
@@ -724,7 +823,9 @@ fi
 rm -f save/flag.txt
 
 if [ $VERBOSE == "yes" ] ; then
+
 	echo
 	echo ending
 	echo
+
 fi
