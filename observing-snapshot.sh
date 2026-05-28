@@ -11,22 +11,22 @@
 # tested with bash version 5.2.21
 # rename required dependency, https://metacpan.org/dist/File-Rename
 # tested with rename version 2.02
-# uses rename's rename
+# uses rename's rename functionality
 # gnuastro required dependency, https://www.gnu.org/software/gnuastro/
 # tested with gnuastro version 0.22
-# uses gnuastro's astfits and aststatistics
+# uses gnuastro's astfits and aststatistics functionality
 # xvfb required dependency, https://x.org/releases/current/doc/man/man1/Xvfb.1.xhtml
 # tested with xvfb version 21.1.12
-# uses xvfb's xvfb-run
+# uses xvfb's xvfb-run functionality
 # saoimage ds9 required dependency, https://sites.google.com/cfa.harvard.edu/saoimageds9
 # tested with saoimageds9 version 8.5
-# uses saoimageds9's ds9
+# uses saoimageds9's ds9 functionality
 # imagemagick required dependency, https://imagemagick.org/download/
 # tested with imagemagick version 6.9.12
 # uses imagemagick's convert and mogrify functionality
 # ffmepg required dependency, https://ffmpeg.org/
 # tested with ffmpeg 6.1.1
-# uses ffmpeg's ffmpeg
+# uses ffmpeg's ffmpeg functionality
 
 # note: ubuntu installation hint, root privileges, "apt install rename gnuastro xvfb saods9 imagemagick ffmpeg"
 # note: windows installation hint to support ubuntu, admin privileges, "wsl --install"
