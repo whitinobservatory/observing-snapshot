@@ -23,7 +23,7 @@
 # uses saoimageds9's ds9
 # imagemagick required dependency, https://imagemagick.org/download/
 # tested with imagemagick version 6.9.12
-# uses imagemagick's convert, mogrify, composite functionality
+# uses imagemagick's convert and mogrify functionality
 # ffmepg required dependency, https://ffmpeg.org/
 # tested with ffmpeg 6.1.1
 # uses ffmpeg's ffmpeg
