@@ -1,4 +1,7 @@
 examples/
+.gitignore
+LICENSE
+README.md
 data/
 html/
 images/
