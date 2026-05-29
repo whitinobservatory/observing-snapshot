@@ -8,4 +8,4 @@
 
 With acknowledgment of [Gnuastro](https://www.gnu.org/software/gnuastro/), [SAOImageDS9](https://sites.google.com/cfa.harvard.edu/saoimageds9), [ImageMagick](https://imagemagick.org/), and [FFmpeg](https://ffmpeg.org/)
 
-If you use this code, find it useful, have bug fixes, or have suggestions for improvement, please let me know.  I've developed these tools for personal use, but would be happy to know that others are also finding them useful too.  Please e-mail me at [jk116@wellesley.edu](mailto:jk116@wellesley.edu).  Thanks, and enjoy.
+If you use this code, find it useful, have bug fixes, or have suggestions for improvement, [please let me know](https://sites.google.com/wellesley.edu/jk116).  I've developed these tools for personal use, but would be happy to know that others are also finding them useful too.  Thanks, and enjoy.
