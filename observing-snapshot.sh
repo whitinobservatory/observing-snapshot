@@ -21,7 +21,7 @@
 # saoimage ds9 required dependency, https://sites.google.com/cfa.harvard.edu/saoimageds9
 # tested with saoimageds9 version 8.5
 # uses saoimageds9's ds9 functionality
-# imagemagick required dependency, https://imagemagick.org/download/
+# imagemagick required dependency, https://imagemagick.org/
 # tested with imagemagick version 6.9.12
 # uses imagemagick's convert and mogrify functionality
 # ffmepg required dependency, https://ffmpeg.org/
